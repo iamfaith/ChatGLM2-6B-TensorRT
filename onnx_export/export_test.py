@@ -13,7 +13,7 @@ from onnx_export.utils import build_inputs
 parser = argparse.ArgumentParser(description='export pytorch model to onnx')
 parser.add_argument(
     '--data_type',
-    default="fp32",
+    default="fp16",
     help='use fp16/fp32 to export onnx model. if use fp16, you need GPU memory > 24G, defualt is fp32'
 )
 

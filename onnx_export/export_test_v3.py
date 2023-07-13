@@ -12,10 +12,12 @@ from chatglm2_6b.modeling_chatglm import ChatGLMForConditionalGeneration
 from chatglm2_6b.tokenization_chatglm import ChatGLMTokenizer
 from onnx_export.utils import build_inputs
 from transformers.models.bloom import BloomOnnxConfig
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 parser = argparse.ArgumentParser(description='export pytorch model to onnx')
 parser.add_argument(
     '--data_type',
-    default="fp32",
+    default="fp16",
     help='use fp16/fp32 to export onnx model. if use fp16, you need GPU memory > 24G, defualt is fp32'
 )
 
@@ -39,11 +41,18 @@ history = [
     )
 ]
 
-model_dir = os.path.join(project_dir, "chatglm2_6b")
-tokenizer = ChatGLMTokenizer.from_pretrained(model_dir)
-config = ChatGLMConfig.from_pretrained(model_dir)
-# config.num_layers = 1
-model = ChatGLMForConditionalGeneration.from_pretrained(model_dir, config=config)
+# model_dir = os.path.join(project_dir, "chatglm2_6b")
+# tokenizer = ChatGLMTokenizer.from_pretrained(model_dir)
+# config = ChatGLMConfig.from_pretrained(model_dir)
+# # config.num_layers = 1
+# model = ChatGLMForConditionalGeneration.from_pretrained(model_dir, config=config)
+
+from transformers import AutoTokenizer, AutoModel
+model_name = '/home/faith/chatglm2-6b'
+tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+model = AutoModel.from_pretrained(model_name, trust_remote_code=True)
+
+
 if device == "cuda":
     model = model.half().cuda()
 else:
@@ -67,7 +76,7 @@ input_ids = input_tensors["input_ids"]
 batch = input_ids.shape[0]
 pake_past_key_values = [
     [
-        torch.zeros([0, batch, 2, 128], device=input_ids.device)
+        torch.zeros([0, batch, 2, 128], device=input_ids.device).half()
         for _ in range(2)
     ]
     for _ in range(model.config.num_layers)

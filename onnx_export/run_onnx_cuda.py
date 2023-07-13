@@ -1,9 +1,9 @@
-import onnxruntime as ort
 import torch
+import onnxruntime as ort
 import numpy as np
 import os
 from colored import fg, stylize
-
+# os.environ["TRANSFORMERS_OFFLINE"] = "0"
 
 now_dir = os.path.dirname(os.path.abspath(__file__))
 project_dir = os.path.dirname(now_dir)
@@ -36,6 +36,7 @@ def run_cuda_onnx_inference(onnx_path, input_path: str, output_path):
     device_id = 0
     
     input_dict = torch.jit.load(input_path)
+    print(input_dict)
     output_dict = torch.jit.load(output_path)
     input_ids = input_dict.input_ids.data.cpu().numpy().astype(np.int64)
     position_ids = input_dict.position_ids.data.cpu().numpy().astype(np.int64)

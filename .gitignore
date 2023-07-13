@@ -23,3 +23,5 @@ log.txt
 tensorrt_export/get_dataset.py
 *.log
 *.json
+screenlog.*
+chatglm2_6b
