@@ -120,6 +120,7 @@ class Model(nn.Module):
         ori_len = len(input_ids[0])
         attention_mask, position_ids = self.pre_processing_step_1(tokenizer, input_ids)
         input_tensors = [input_ids, position_ids, attention_mask]
+        input_tensors = [input_ids, position_ids]
         outputs_1 = self.kernel.forward(input_tensors)
         ori_input_ids = input_ids
         ori_input_ids, input_tensors = self.post_processing_step(
@@ -217,8 +218,8 @@ if __name__ == "__main__":
     from transformers import AutoTokenizer
     import time
     from tqdm import trange
-    tokenizer = AutoTokenizer.from_pretrained("chatglm_6b", trust_remote_code=True)
-    model = Model("models/chatglm6b-bs1-18.5G.plan", 1)
+    tokenizer = AutoTokenizer.from_pretrained("/workspace/chatglm2-6b", trust_remote_code=True)
+    model = Model("models/chatglm6b2-bs1_with_cache.plan", 1)
     all_res = []
     st = time.time()
     for i in trange(10):

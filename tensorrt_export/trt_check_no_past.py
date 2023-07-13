@@ -47,6 +47,7 @@ def main():
     # compare logits
     logits = output_dict.logits.to(device)
     pred_logits = output_tensors[-1]
+    print(pred_logits.shape, logits.shape)
     logits_diff = check_value(logits, pred_logits)
     print("=" * 20)
     print("compare logits")

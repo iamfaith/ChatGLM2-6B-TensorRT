@@ -1,4 +1,18 @@
 #include <kernel.hpp>
+#ifndef __has_include
+  static_assert(false, "__has_include not supported");
+#else
+#  if __cplusplus >= 201703L && __has_include(<filesystem>)
+#    include <filesystem>
+     namespace fs = std::filesystem;
+#  elif __has_include(<experimental/filesystem>)
+#    include <experimental/filesystem>
+     namespace fs = std::experimental::filesystem;
+#  elif __has_include(<boost/filesystem.hpp>)
+#    include <boost/filesystem.hpp>
+     namespace fs = boost::filesystem;
+#  endif
+#endif
 
 void _check_cuda(cudaError_t code, const char *func, const char *file, int line) {
   if (code != cudaSuccess) {
@@ -82,10 +96,10 @@ std::tuple<const char *, std::size_t> get_data_type(int data_type) {
 
 
 bool load_engine_data(const std::string engine_path, std::vector<char> & engine_data) {
-  if (std::filesystem::exists(engine_path) == false || std::filesystem::is_regular_file(engine_path) == false) {
-    std::cerr << RED << "Failed to find engine file" << NONE << std::endl;
-    return false;
-  }
+  // if (std::filesystem::exists(engine_path) == false || std::filesystem::is_regular_file(engine_path) == false) {
+  //   std::cerr << RED << "Failed to find engine file" << NONE << std::endl;
+  //   return false;
+  // }
   std::ifstream engine_file(
     engine_path,
     std::ios::binary | std::ios::in

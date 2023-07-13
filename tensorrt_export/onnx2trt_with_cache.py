@@ -22,6 +22,7 @@ opt_input_length = max_input_length // 2
 force_use_fp16 = False
 # default 3, max 5, 5 is the best but need more GPU memory and time
 builder_optimization_level = 3
+builder_optimization_level = 1
 # lower memory GPU can try this option with True \
 # it can use CPU memory/CPU compute to run some layers, but may reduce the speed
 all_gpu_fallback = False
@@ -133,12 +134,18 @@ if __name__ == "__main__":
     profile_list = get_network_profiles(builder)
     for profile in profile_list:
         config.add_optimization_profile(profile)
-    # use fp16
-    config.flags = 1 << int(trt.BuilderFlag.FP16)
-    # disable tf32
-    config.flags = config.flags & ~(1 << int(trt.BuilderFlag.TF32))
+    # # use fp16
+    # config.flags = 1 << int(trt.BuilderFlag.FP16)
+    # # disable tf32
+    # config.flags = config.flags & ~(1 << int(trt.BuilderFlag.TF32))
+
+    # https://github.com/HeKun-NVIDIA/TensorRT-Developer_Guide_in_Chinese/blob/main/6.TensorRT%E9%AB%98%E7%BA%A7%E7%94%A8%E6%B3%95/TensorRT%E9%AB%98%E7%BA%A7%E7%94%A8%E6%B3%95.md
+    # config.set_flag(trt.BuilderFlag.TF32)
+    config.set_flag(trt.BuilderFlag.FP16)
+
+
     # use obey precision constraints
-    config.flags = config.flags | (1 << int(trt.BuilderFlag.OBEY_PRECISION_CONSTRAINTS))
+    # config.flags = config.flags | (1 << int(trt.BuilderFlag.OBEY_PRECISION_CONSTRAINTS))
     # config.set_memory_pool_limit(MemoryPoolType.WORKSPACE, 2 * 1024 * 1024 * 1024)
 
     # use prewview features

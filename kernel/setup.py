@@ -20,7 +20,8 @@ torch_lib_dir = os.path.join(torch.__path__[0], "lib")
 library_dirs.append(torch_lib_dir)
 libraries.extend(["torch", "torch_cuda", "torch_cpu", "c10", "cudart", "c10_cuda"])
 library_dirs.append(pybind11.get_include(False))
-extra_link_args = ["-D_GLIBCXX_USE_CXX11_ABI=1", "-std=c++17"]
+# extra_link_args = ["-D_GLIBCXX_USE_CXX11_ABI=1", "-std=c++17"]
+extra_link_args = ["-D_GLIBCXX_USE_CXX11_ABI=1", "-lstdc++fs", "-std=c++17"]
 # extra_link_args = ["-D_GLIBCXX_USE_CXX11_ABI=0"]
 #   "-L/usr/local/cuda/lib64", "-lnvinfer", f"-L{torch_lib_dir}"]
 

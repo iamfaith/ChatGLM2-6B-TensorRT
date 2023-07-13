@@ -55,14 +55,54 @@ history = [
 ]
 
 model_dir = os.path.join(project_dir, "chatglm2_6b")
-tokenizer = ChatGLMTokenizer.from_pretrained(model_dir)
-input_tensors = build_inputs(device, tokenizer, query, history)
-# model = ChatGLMForConditionalGeneration.from_pretrained(model_dir)
+# tokenizer = ChatGLMTokenizer.from_pretrained(model_dir)
+# # model = ChatGLMForConditionalGeneration.from_pretrained(model_dir)
 config = ChatGLMConfig.from_pretrained(model_dir)
-# config.num_layers = 1
-model = ChatGLMForConditionalGeneration.from_pretrained(model_dir, config=config)
+# # config.num_layers = 1
+# model = ChatGLMForConditionalGeneration.from_pretrained(model_dir, config=config)
+
+
+
+from transformers import AutoTokenizer, AutoModel
+import os
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["TRANSFORMERS_OFFLINE"] = "1"
+from accelerate import load_checkpoint_and_dispatch, load_checkpoint_in_model, dispatch_model
+
+model_name = '/home/faith/chatglm2-6b'
+tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+model = AutoModel.from_pretrained(model_name, trust_remote_code=True)
+max_mem = {0: 10_79532032, 1: 22_79532032, 'cpu': 912_90877440}
+# model = load_checkpoint_and_dispatch(
+#     model, '/home/faith/chatglm2-6b', device_map="balanced", no_split_module_classes=["GLMBlock"], offload_folder="/home/faith/langchain-ChatGLM/test", max_memory=max_mem
+# )
+
+
+device_map = {'transformer.embedding': 0, 'transformer.rotary_pos_emb': 0, 'transformer.encoder.layers.0': 0, 'transformer.encoder.layers.1': 0, 'transformer.encoder.layers.2': 0, 'transformer.encoder.layers.3': 0, 'transformer.encoder.layers.4': 0, 'transformer.encoder.layers.5': 0, 'transformer.encoder.layers.6': 0, 'transformer.encoder.layers.7': 0, 'transformer.encoder.layers.8': 0, 'transformer.encoder.layers.9': 0, 'transformer.encoder.layers.10': 0, 'transformer.encoder.layers.11': 0, 'transformer.encoder.layers.12': 0, 'transformer.encoder.layers.13': 0, 'transformer.encoder.layers.14': 0, 'transformer.encoder.layers.15': 0, 'transformer.encoder.layers.16': 0, 'transformer.encoder.layers.17': 0, 'transformer.encoder.layers.18': 0, 'transformer.encoder.layers.19': 0, 'transformer.encoder.layers.20': 0, 'transformer.encoder.layers.21': 0, 'transformer.encoder.layers.22': 0, 'transformer.encoder.layers.23': 1, 'transformer.encoder.layers.24': 1, 'transformer.encoder.layers.25': 0, 'transformer.encoder.layers.26': 1, 'transformer.encoder.layers.27': 1, 'transformer.encoder.final_layernorm': 1, 'transformer.output_layer': 1}
+
+offload_state_dict = False
+load_checkpoint_in_model(
+    model,
+    checkpoint='/home/faith/chatglm2-6b',
+    device_map=device_map,
+    offload_folder="/home/faith/langchain-ChatGLM/test",
+    dtype=None,
+    offload_state_dict=offload_state_dict,
+    offload_buffers=False,
+)
+
+model = dispatch_model(
+    model,
+    device_map=device_map,
+    offload_dir="/home/faith/langchain-ChatGLM/test",
+    offload_buffers=False,
+    preload_module_classes=None,
+)
+
+
 if device == "cuda":
-    model = model.half().cuda()
+    # model = model.half().cuda()
+    model = model.float()
 else:
     model = model.float().cpu()
 model.eval()
@@ -85,7 +125,7 @@ token_num = len(tokens)
 speed = round(token_num / (et - st), 1)
 print("speed: {} tokens/s".format(speed))
 """
-
+input_tensors = build_inputs(device, tokenizer, query, history)
 # --- prepare data for input1 ---
 input_ids1 = input_tensors["input_ids"]
 position_ids1 = input_tensors["position_ids"]
