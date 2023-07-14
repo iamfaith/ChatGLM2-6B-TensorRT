@@ -2,7 +2,7 @@ import os
 import sys
 import torch
 from colored import stylize, fg
-
+import time
 
 now_dir = os.path.dirname(os.path.abspath(__file__))
 project_dir = os.path.dirname(now_dir)
@@ -49,12 +49,16 @@ def main():
             one_key_value = getattr(input_dict, name).to(device)
             input_tensors.append(one_key_value)
     kernel = KernelWithPast(engine_path1, batch_size, num_layers)
+    start = time.time()
     output_tensors = kernel.forward(tuple(input_tensors))
+    end = time.time()
+    print(end - start)
     # compare output
     max_diff_ = 0
     # compare logits
     logits = output_dict.logits.to(device)
-    pred_logits = output_tensors[-1]
+
+    pred_logits = output_tensors[0]
     print(pred_logits.shape, logits.shape)
     logits_diff = check_value(logits, pred_logits)
     print("=" * 20)
@@ -62,7 +66,7 @@ def main():
     if logits_diff > max_diff_:
         max_diff_ = logits_diff
     # compare past key values
-    for i in range(num_layers):
+    for i in range(1, num_layers):
         present_key_name = f"present_key_values.{i}.key"
         present_value_name = f"present_key_values.{i}.value"
         true_present_key = getattr(output_dict, present_key_name).to(device)

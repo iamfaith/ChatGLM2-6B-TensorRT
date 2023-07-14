@@ -26,6 +26,12 @@ def compare_value(pre_numpy: np.array, true_numpy: np.array):
 def run_cpu_onnx_inference(onnx_path, input_path: str, output_path):
     """
     """
+    input_dict = torch.jit.load(input_path)
+    output_dict = torch.jit.load(output_path)
+    input_ids = input_dict.input_ids.data.cpu().numpy().astype(np.int64) # (1, 62)
+    position_ids = input_dict.position_ids.data.cpu().numpy().astype(np.int64) # (1, 62)
+    logits = output_dict.logits.data.cpu().numpy() # (1, 62, 65024)
+
     # ndWtokenizer = AutoTokenizer.from_pretrained(model_dir, trust_remote_code=True)
     # providers = [("CUDAExecutionProvider", {"cudnn_conv_use_max_workspace": '1'})]
     providers = ["CPUExecutionProvider"]
@@ -37,11 +43,7 @@ def run_cpu_onnx_inference(onnx_path, input_path: str, output_path):
         onnx_path, sess_options=sess_options, providers=providers
     )
     print(session.get_providers())
-    input_dict = torch.jit.load(input_path)
-    output_dict = torch.jit.load(output_path)
-    input_ids = input_dict.input_ids.data.cpu().numpy().astype(np.int64)
-    position_ids = input_dict.position_ids.data.cpu().numpy().astype(np.int64)
-    logits = output_dict.logits.data.cpu().numpy()
+
     key = "present_key_values.0.key"
     one_present_key = getattr(output_dict, key).data.cpu().numpy()
     num_layers = getattr(output_dict, "num_layers")

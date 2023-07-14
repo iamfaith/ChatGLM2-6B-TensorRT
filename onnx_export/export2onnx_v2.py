@@ -192,7 +192,7 @@ for layer_idx in range(model.config.num_layers):
         }
     })
 
-
+torch_gc()
 with torch.no_grad():
     torch.onnx.export(
         model,
