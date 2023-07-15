@@ -22,7 +22,6 @@ opt_input_length = max_input_length // 2
 force_use_fp16 = False
 # default 3, max 5, 5 is the best but need more GPU memory and time
 builder_optimization_level = 3
-builder_optimization_level = 1
 # lower memory GPU can try this option with True \
 # it can use CPU memory/CPU compute to run some layers, but may reduce the speed
 all_gpu_fallback = False
@@ -129,23 +128,24 @@ if __name__ == "__main__":
         f"chatglm6b2-bs{batch_size}_with_cache.plan"
     )
     builder = trt.Builder(MyLogger())
-    builder.max_threads = os.cpu_count() // 2
+    builder.max_threads = os.cpu_count() // 1
     config = builder.create_builder_config()
     profile_list = get_network_profiles(builder)
     for profile in profile_list:
         config.add_optimization_profile(profile)
     # # use fp16
-    # config.flags = 1 << int(trt.BuilderFlag.FP16)
+    config.flags = 1 << int(trt.BuilderFlag.FP16)
     # # disable tf32
-    # config.flags = config.flags & ~(1 << int(trt.BuilderFlag.TF32))
+    config.flags = config.flags & ~(1 << int(trt.BuilderFlag.TF32))
 
     # https://github.com/HeKun-NVIDIA/TensorRT-Developer_Guide_in_Chinese/blob/main/6.TensorRT%E9%AB%98%E7%BA%A7%E7%94%A8%E6%B3%95/TensorRT%E9%AB%98%E7%BA%A7%E7%94%A8%E6%B3%95.md
     # config.set_flag(trt.BuilderFlag.TF32)
-    config.set_flag(trt.BuilderFlag.FP16)
+    # config.set_flag(trt.BuilderFlag.FP16)
 
 
     # use obey precision constraints
-    # config.flags = config.flags | (1 << int(trt.BuilderFlag.OBEY_PRECISION_CONSTRAINTS))
+    # tensorrt OBEY_PRECISION_CONSTRAINTS是一个设置层精度约束的选项。如果设置为True，那么层必须按照指定的精度执行，否则构建失败。如果设置为False，那么层可以忽略精度约束，选择任何可用的实现。这个选项可以通过IBuilderConfig接口设置。希望这对您有帮助。
+    config.flags = config.flags | (1 << int(trt.BuilderFlag.OBEY_PRECISION_CONSTRAINTS))
     # config.set_memory_pool_limit(MemoryPoolType.WORKSPACE, 2 * 1024 * 1024 * 1024)
 
     # use prewview features

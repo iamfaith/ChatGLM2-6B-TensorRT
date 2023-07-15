@@ -198,12 +198,12 @@ void Kernel::vertify_io_number() {
   // std::cout << "vertify tensorRT engine io number is OK!" << std::endl;
   // vertify the number of optimization profile
   std::size_t n_profile = this->engine_->getNbOptimizationProfiles();
-  if (n_profile != 2) {
-    throw std::runtime_error(
-      "Number of optimization profiles is not correct, must be 2, but you have " \
-      + std::to_string(n_profile) + " profiles"
-    );
-  }
+  // if (n_profile != 2) {
+  //   throw std::runtime_error(
+  //     "Number of optimization profiles is not correct, must be 2, but you have " \
+  //     + std::to_string(n_profile) + " profiles"
+  //   );
+  // }
   std::cout << GREEN << "number of profile: " << n_profile << NONE << std::endl;
 }
 

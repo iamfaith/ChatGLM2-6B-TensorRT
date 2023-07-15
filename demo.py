@@ -14,6 +14,7 @@ from kernel.logits_processor import (
 from kernel import ckernel
 
 Kernel = ckernel.Kernel
+print(ckernel.__file__)
 # from ckernel import Kernel
 
 # from kernel.ckernel import Kernel

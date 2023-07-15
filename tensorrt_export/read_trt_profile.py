@@ -5,7 +5,7 @@ import os
 now_dir = os.path.dirname(os.path.abspath(__file__))
 project_dir = os.path.dirname(now_dir)
 model_dir = os.path.join(project_dir, "models")
-trt_enginge_path = os.path.join(model_dir, "chatglm6b-bs1-18.5G.plan")
+trt_enginge_path = os.path.join(model_dir, "chatglm6b2-bs1_with_cache.plan")
 
 # Load TensorRT Engine
 with open(trt_enginge_path, 'rb') as f, trt.Runtime(trt.Logger(trt.Logger.WARNING)) as runtime:

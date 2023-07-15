@@ -53,8 +53,8 @@ class Kernel {
   public:
     const int batch_size_;
     const int vocab_size_ = 130528;
-    const std::size_t n_total_ = 116;
-    const std::size_t n_input_ = 59;
+    const std::size_t n_total_ = 115;
+    const std::size_t n_input_ = 58;
     const std::size_t n_output_ = 57;
     std::vector<char const *> tensor_names_;
     Kernel(const std::string engine_path, int batch_size);

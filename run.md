@@ -86,7 +86,25 @@ docker run --gpus all \
 	nvcr.io/nvidia/pytorch:23.04-py3
 
 python -m pip install colored transformers sentencepiece onnxruntime
-python -m pip install -e kernel/
+
+rm -rf kernel/build/ kernel/ckernel.cpython-38-x86_64-linux-gnu.so 
+python -m pip install --no-cache-dir -e kernel
+
+- 一个可能的解决方案是**使用pip install --force-reinstall**命令，它可以强制重新安装一个或多个已存在的包，包括重新编译源代码。¹ 例如：
+    - `pip install --force-reinstall -e kernel/`
+- 另一个可能的解决方案是**使用pip install --no-cache-dir**命令，它可以禁用缓存，从而避免使用已编译的版本。² 例如：
+    - `pip install --no-cache-dir -e kernel`
+- 还有一个可能的解决方案是**使用pip install --ignore-installed**命令，它可以忽略已安装的包，并重新安装它们。³ 例如：
+    - `pip install --ignore-installed kernel/`
+
+
+Source: Conversation with Bing, 7/14/2023
+(1) pip - Python: how to edit an installed package? - Stack Overflow. https://stackoverflow.com/questions/23075397/python-how-to-edit-an-installed-package.
+(2) pip install - pip documentation v23.1.2. https://pip.pypa.io/en/stable/cli/pip_install.html.
+(3) How to reinstall a pip package even if it exists - Stack Overflow. https://stackoverflow.com/questions/53065940/how-to-reinstall-a-pip-package-even-if-it-exists.
+
+
+<!-- 32.5 min every time -->
 python tensorrt_export/onnx2trt_with_cache.py > trt_with_past.log 2>&1 
 
 检查数据精度，验证TensorRT文件输出结果和pytorch是否一样
@@ -94,6 +112,28 @@ python tensorrt_export/trt_check_no_past.py
 
 python tensorrt_export/trt_check_with_past.py 
 
+
+trt forward time:
+0.11942362785339355
+0.029341936111450195
+0.029618263244628906
+0.026393651962280273
+0.025846004486083984
+0.024868488311767578
+0.024997234344482422
+0.025296688079833984
+0.02353191375732422
+0.02351546287536621
+
+
+torch forward time:
+0.027190685272216797
+0.02532029151916504
+0.02522873878479004
+0.025246620178222656
+0.025194168090820312
+0.025243520736694336
+0.025290250778198242
 
 call stack：
 forward (\home\faith\.cache\huggingface\modules\transformers_modules\chatglm-6b\modeling_chatglm.py:1187)
@@ -106,6 +146,9 @@ main (\home\faith\langchain-ChatGLM\test\module\benchmark_chatglm.py:123)
 _run_code (\home\faith\miniconda3\envs\torch_cuda_11.3\lib\python3.8\runpy.py:87)
 _run_module_as_main (\home\faith\miniconda3\envs\torch_cuda_11.3\lib\python3.8\runpy.py:194)
 
+
+time benchmark
+'/home/faith/miniconda3/envs/torch_cuda_11.3/lib/python3.8/site-packages/transformers/generation/utils.py:2204'
 
  /home/faith/miniconda3/envs/py3.10/bin/python /mnt/ChatGLM2-6B-TensorRT/onnx_export/run_onnx_cpu.py
  
