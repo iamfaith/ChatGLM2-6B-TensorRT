@@ -24,10 +24,11 @@ project_dir = os.path.dirname(now_dir)
 
 
 output_dir = os.path.join(project_dir, "output")
-new_onnx_dir = os.path.join(output_dir, "onnx_output_no_cache_new")
+new_onnx_dir = os.path.join(output_dir, "onnx_output")
 new_onnx_path = os.path.join(new_onnx_dir, "chatglm2_6b.onnx")
 model_dir = os.path.join(project_dir, "models")
-trt_model_path = os.path.join(model_dir, "model-no-cache-FP32-MarkAll.plan")
+# trt_model_path = os.path.join(model_dir, "model-no-cache-FP32-MarkAll.plan")
+trt_model_path = os.path.join(model_dir, "chatglm6b2-bs1_with_cache.plan")
 num_layers = 1
 
 

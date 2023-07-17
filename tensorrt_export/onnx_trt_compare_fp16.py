@@ -47,13 +47,13 @@ else:
     for file in os.listdir(new_onnx_dir2):
         os.remove(os.path.join(new_onnx_dir2, file))
 
-onnx_path = os.path.join(output_dir, "onnx_output_no_cache", "chatglm2_6b.onnx")
+onnx_path = os.path.join(output_dir, "onnx_output", "chatglm2_6b.onnx")
 new_onnx_path = os.path.join(new_onnx_dir, "chatglm2_6b.onnx")
 new_onnx_path2 = os.path.join(new_onnx_dir2, "chatglm2_6b.onnx")
 model_dir = os.path.join(project_dir, "models")
-trt_model_path = os.path.join(model_dir, "model-no-cache-FP16-MarkAll.plan")
+trt_model_path = os.path.join(model_dir, "chatglm6b2-bs1_with_cache.plan")
 time_cache_path = os.path.join(output_dir, "fp16_markAll_no_cache.cache")
-use_time_cache = True
+use_time_cache = False
 num_layers = 1
 
 
