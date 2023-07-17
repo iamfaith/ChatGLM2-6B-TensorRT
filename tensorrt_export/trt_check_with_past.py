@@ -49,10 +49,11 @@ def main():
             one_key_value = getattr(input_dict, name).to(device)
             input_tensors.append(one_key_value)
     kernel = KernelWithPast(engine_path1, batch_size, num_layers)
-    start = time.time()
-    output_tensors = kernel.forward(tuple(input_tensors))
-    end = time.time()
-    print(end - start)
+    for i in range(10):
+        start = time.time()
+        output_tensors = kernel.forward(tuple(input_tensors))
+        end = time.time()
+        print(end - start)
     # compare output
     max_diff_ = 0
     # compare logits

@@ -208,18 +208,20 @@ void Kernel::vertify_io_number() {
 }
 
 void Kernel::init_execute_context() {
+  std::cout << GREEN << "init context 1" << NONE << std::endl;
   CHECK_CUDA(cudaStreamCreate(&this->stream_1_));
   this->context_1_ = std::shared_ptr<nvinfer1::IExecutionContext>(
     this->engine_->createExecutionContext()
   );
   this->context_1_->setOptimizationProfileAsync(0, this->stream_1_);
 
+  std::cout << GREEN << "init context 2" << NONE << std::endl;
   // this context is for inference when past_key_values is not None
-  CHECK_CUDA(cudaStreamCreate(&this->stream_2_));
-  this->context_2_ = std::shared_ptr<nvinfer1::IExecutionContext>(
-    this->engine_->createExecutionContext()
-  );
-  this->context_2_->setOptimizationProfileAsync(1, this->stream_2_);
+  // CHECK_CUDA(cudaStreamCreate(&this->stream_2_));
+  // this->context_2_ = std::shared_ptr<nvinfer1::IExecutionContext>(
+  //   this->engine_->createExecutionContext()
+  // );
+  // this->context_2_->setOptimizationProfileAsync(1, this->stream_2_);
 }
 
 std::vector<torch::Tensor> Kernel::forward(
@@ -310,11 +312,11 @@ std::vector<torch::Tensor> Kernel::forward(
     // std::cout << "past_seq_length: " << past_seq_length << std::endl;
     this->set_input_for_context2(past_seq_length);
     // get tensor size for context2
-    this->get_tensor_size(this->context_2_, bytes_list, type_bytes_list);
+    this->get_tensor_size(this->context_1_, bytes_list, type_bytes_list);
     MY_LOG("get tensor size for context 2 ok!\n");
     present_key_len = seq_len + past_seq_length;
-    context = this->context_2_;
-    stream = this->stream_2_;
+    context = this->context_1_;
+    stream = this->stream_1_;
   }
 
   // prepare output

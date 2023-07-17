@@ -63,8 +63,19 @@ class Model(nn.Module):
         # 第一次推理
         input_ids = tokenizer.encode(prompt, return_tensors="pt").cuda().to(torch.int32)
         ori_len = len(input_ids[0])
-        attention_mask, position_ids = self.pre_processing_step_1(tokenizer, input_ids)
-        input_tensors = [input_ids, position_ids, attention_mask]
+        # attention_mask, position_ids = self.pre_processing_step_1(tokenizer, input_ids)
+        # input_tensors = [input_ids, position_ids, attention_mask]
+        # input_tensors = [input_ids, position_ids]
+
+
+        input_encoded = tokenizer.batch_encode_plus([prompt], return_tensors="pt", padding=True)
+        # print("input_encoded = {}".format(input_encoded), flush=True)
+        for t in input_encoded:
+            if torch.is_tensor(input_encoded[t]):
+                input_encoded[t] = input_encoded[t].cuda().to(torch.int32)
+        input_tensors = [input_encoded['input_ids'].cuda().to(torch.int32), input_encoded['position_ids'].cuda().to(torch.int32)]
+
+        
         outputs_1 = self.kernel.forward(input_tensors)
         ori_input_ids = input_ids
         ori_input_ids, input_tensors = self.post_processing_step(
@@ -143,7 +154,7 @@ class Model(nn.Module):
     def pre_processing_step_1(self, tokenizer, input_ids: torch.Tensor):
         BOS = tokenizer.bos_token_id
         MASK = tokenizer.mask_token_id
-        gMASK = tokenizer.gmask_token_id
+        gMASK = tokenizer.mask_token_id
         batch_size, seq_length = input_ids.shape
         # 输入张量扩展常量
         input_range = torch.arange(seq_length, dtype=torch.int32).repeat((batch_size, 1)).to(input_ids.device)
@@ -220,6 +231,16 @@ if __name__ == "__main__":
     import time
     from tqdm import trange
     tokenizer = AutoTokenizer.from_pretrained("/workspace/chatglm2-6b", trust_remote_code=True)
+    # ChatGLMTokenizer.from_pretrained(model_dir)
+    # gmask_id = tokenizer.sp_tokenizer[tokenizer.gmask_token]
+    # print(tokenizer)
+    vocab = tokenizer.get_vocab()
+    special_tokens = [token for token, index in vocab.items() if index < 6]
+    print(special_tokens)
+
+    print(tokenizer.special_tokens_map)
+    print(tokenizer.all_special_tokens)
+
     model = Model("models/chatglm6b2-bs1_with_cache.plan", 1)
     all_res = []
     st = time.time()
